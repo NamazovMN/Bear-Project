@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        <title>Babylon.js sample code</title>
+
+        <!-- Babylon.js -->
+        <script src="https://code.jquery.com/pep/0.4.2/pep.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+        <script src="https://preview.babylonjs.com/ammo.js"></script>
+        <script src="https://preview.babylonjs.com/cannon.js"></script>
+        <script src="https://preview.babylonjs.com/Oimo.js"></script>
+        <script src="https://preview.babylonjs.com/libktx.js"></script>
+        <script src="https://preview.babylonjs.com/earcut.min.js"></script>
+        <script src="https://preview.babylonjs.com/babylon.js"></script>
+        <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+        <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+        <script src="https://preview.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+        <script src="https://preview.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+        <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+        <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+        <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+
+        <style>
+            html, body {
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            #renderCanvas {
+                width: 100%;
+                height: 100%;
+                touch-action: none;
+            }
+        </style>
+    </head>
+<body>
+    <canvas id="renderCanvas"></canvas>
+    <script>
+        var canvas = document.getElementById("renderCanvas");
+
+        var engine = null;
+        var scene = null;
+        var sceneToRender = null;
+        var createDefaultEngine = function() { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true }); };
+        var createScene = function () {
+        
+            // This creates a basic Babylon Scene object (non-mesh)
+            var scene = new BABYLON.Scene(engine);
+        
+            // This creates and positions a free camera (non-mesh)
+            var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 5, -10), scene);
+        
+            // This targets the camera to scene origin
+            camera.setTarget(BABYLON.Vector3.Zero());
+        
+            // This attaches the camera to the canvas
+            camera.attachControl(canvas, true);
+        
+            // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
+            var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+        
+            // Default intensity is 1. Let's dim the light a small amount
+            light.intensity = 0.7;
+        
+            // Our built-in 'sphere' shape.
+        
+            // Move the sphere upward 1/2 its height
+            // sphere.position.y = 1;
+        
+            // Our built-in 'ground' shape.
+        
+        
+            var head = BABYLON.MeshBuilder.CreateTorus("head", { diameter: 2, thickness: 2 }, scene);
+            head.position.y = 2;
+            head.parent = torso;
+        
+            var ear1 = BABYLON.MeshBuilder.CreatePolyhedron("ear1", { type: 2, size: 0.5 }, scene);
+            ear1.position.x = 1.2;
+            ear1.position.y = head.position.y - 1;
+            ear1.parent = head;
+        
+            var ear2 = BABYLON.MeshBuilder.CreatePolyhedron("ear2", { type: 2, size: 0.5 }, scene);
+            ear2.position.x = -1.2;
+            ear2.position.y = ear1.position.y;
+            ear2.parent = head;
+            ear2.rotate(new BABYLON.Vector3(0, 1, 0), Math.PI);
+        
+            var eye1 = BABYLON.MeshBuilder.CreateSphere("eye1", { diameter: 0.5, segments: 32 }, scene);
+            eye1.parent = head;
+            eye1.position.x = -0.5;
+            eye1.position.y = 0.5;
+            eye1.position.z = -1.6;
+        
+            var eye2 = BABYLON.MeshBuilder.CreateSphere("eye2", { diameter: 0.5, segments: 32 }, scene);
+            eye2.parent = head;
+            eye2.position.x = 0.5;
+            eye2.position.y = 0.5;
+            eye2.position.z = -1.6;
+        
+            var nose = BABYLON.MeshBuilder.CreatePolyhedron("nose", { type: 1, size: 0.6 }, scene);
+            nose.parent = head;
+            nose.position.z = -1.35;
+            nose.position.y = 0.1;
+            var hat = BABYLON.MeshBuilder.CreateCylinder("hat", { height: 1.5, diameterTop: 1, diameter: 2 }, scene);
+            hat.position.y = 1.4;
+            hat.parent = head;
+            var hatDisc = BABYLON.MeshBuilder.CreateCylinder("hatDisc", { height: 0.1, diameter: 4 }, scene);
+            hatDisc.parent = hat;
+            hatDisc.position.y = -0.4;
+        
+            var torso = BABYLON.MeshBuilder.CreateCylinder("torso", { height: 2, diameter: 3 }, scene);
+            torso.position.y = 0.5;
+        
+            var rightShoulder = BABYLON.MeshBuilder.CreateSphere("shoulderRight", { diameter: 0.7, segments: 32 }, scene);
+            rightShoulder.parent = torso;
+            rightShoulder.position.x = 1.6;
+            rightShoulder.position.z = -0.2;
+            var rightArm = BABYLON.MeshBuilder.CreateSphere("rightArm", { diameterX: 0.5, diameterY: 1.5, diameterZ: 0.7 }, scene);
+            rightArm.parent = rightShoulder;
+            rightArm.position.x = 0.2;
+            rightArm.position.y = -0.5;
+        
+        
+            var leftShoulder = BABYLON.MeshBuilder.CreateSphere("shoulderLeft", { diameter: 0.7, segments: 32 }, scene);
+            leftShoulder.parent = torso;
+            leftShoulder.position.x = -1.6;
+            leftShoulder.position.z = -0.2;
+            //leftShoulder.rotate(new BABYLON.Vector3(1,0,0), Math.PI/2);
+            var leftArm = BABYLON.MeshBuilder.CreateSphere("leftArm", { diameterX: 0.5, diameterY: 1.5, diameterZ: 0.7 }, scene);
+            leftArm.parent = leftShoulder;
+            leftArm.position.x = -0.2;
+            leftArm.position.y = -0.5;
+        
+        
+            var torso2 = BABYLON.MeshBuilder.CreateTorus("torsoDown", { diameter: 1.8, thickness: 1.5 }, scene);
+            torso2.parent = torso;
+            torso2.position.y = -1.3;
+        
+            var rightLegBone = BABYLON.MeshBuilder.CreateSphere("rightBone", { diameter: 0.7, segments: 32 }, scene);
+            rightLegBone.parent = torso2;
+            rightLegBone.position.y = -0.5;
+            rightLegBone.position.x = 0.5;
+            // rightLegBone.rotate(new BABYLON.Vector3(1,0,0), Math.PI/3);
+            var leftLegBone = BABYLON.MeshBuilder.CreateSphere("leftBone", { diameter: 0.7, segments: 32 }, scene);
+            leftLegBone.parent = torso2;
+            leftLegBone.position.y = -0.5;
+            leftLegBone.position.x = -0.5
+        
+            var rightLeg = BABYLON.MeshBuilder.CreateSphere("rightLeg", { diameterX: 0.7, diameterY: 1, diameterZ: 0.7 }, scene);
+            rightLeg.parent = rightLegBone;
+            // rightLeg.position.x = 0.5;
+            rightLeg.position.y = -0.7;
+        
+            var leftLeg = BABYLON.MeshBuilder.CreateSphere("leftLeg", { diameterX: 0.7, diameterY: 1, diameterZ: 0.7 }, scene);
+            leftLeg.parent = leftLegBone;
+            // leftLeg.position.x = -0.5;
+            leftLeg.position.y = -0.7;
+        
+            var rightKnee = BABYLON.MeshBuilder.CreateSphere("rightKnee", { diameter: 0.7, segments: 32 }, scene);
+            rightKnee.parent = rightLeg;
+            rightKnee.position.y = -0.5;
+            var leftKnee = BABYLON.MeshBuilder.CreateSphere("lefttKnee", { diameter: 0.7, segments: 32 }, scene);
+            leftKnee.parent = leftLeg;
+            leftKnee.position.y = -0.5;
+            var rightLeg2 = BABYLON.MeshBuilder.CreateSphere("rightLeg2", { diameterX: 0.7, diameterY: 1.5, diameterZ: 0.7 }, scene);
+            rightLeg2.parent = rightKnee;
+            rightLeg2.position.y = -0.5;
+            var leftLeg2 = BABYLON.MeshBuilder.CreateSphere("leftLeg2", { diameterX: 0.7, diameterY: 1.5, diameterZ: 0.7 }, scene);
+            leftLeg2.parent = leftKnee;
+            leftLeg2.position.y = -0.5;
+            // rightKnee.rotate(new BABYLON.Vector3(1,0,0), -Math.PI/3);
+        
+        
+            var headMaterial = new BABYLON.StandardMaterial("headMaterial", scene);
+            var eyeMaterial = new BABYLON.StandardMaterial("eyeMaterial", scene);
+            var noseMaterial = new BABYLON.StandardMaterial("noseMaterial", scene);
+            var hatMaterial = new BABYLON.StandardMaterial("hatMaterial", scene);
+            var hatDiscMaterial = new BABYLON.StandardMaterial("hatDiscMaterial", scene);
+            var shirtMaterial = new BABYLON.StandardMaterial("shirtMaterial", scene);
+            var trousersMaterial = new BABYLON.StandardMaterial("trousersMaterial", scene);
+        
+            headMaterial.diffuseColor = new BABYLON.Color3(1, 0.68, 0);
+            head.material = headMaterial;
+            ear1.material = headMaterial;
+            ear2.material = headMaterial;
+        
+            eyeMaterial.diffuseColor = new BABYLON.Color3(0, 1, 0);
+            eye1.material = eyeMaterial;
+            eye2.material = eyeMaterial;
+        
+            noseMaterial.diffuseColor = new BABYLON.Color3(0.2, 0.5, 1);
+            nose.material = noseMaterial;
+        
+            hatMaterial.diffuseColor = new BABYLON.Color3(1, 0.1, 0.4);
+            hat.material = hatMaterial;
+        
+            hatDiscMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
+            hatDisc.material = hatDiscMaterial;
+        
+            torso.material = headMaterial;
+            torso2.material = headMaterial;
+            rightShoulder.material = headMaterial;
+            rightArm.material = headMaterial;
+            leftShoulder.material = headMaterial;
+            leftArm.material = headMaterial;
+            rightLegBone.material = headMaterial;
+            leftLegBone.material = headMaterial;
+            rightLeg.material = headMaterial;
+            leftLeg.material = headMaterial;
+            rightLeg2.material = headMaterial;
+            leftLeg2.material = headMaterial;
+            rightKnee.material = headMaterial;
+            leftKnee.material = headMaterial;
+            return scene;
+        
+        
+        };
+var engine;
+try {
+    engine = createDefaultEngine();
+} catch(e) {
+    console.log("the available createEngine function failed. Creating the default engine instead");
+    engine = createDefaultEngine();
+}
+        if (!engine) throw 'engine should not be null.';
+        scene = createScene();;
+        sceneToRender = scene
+
+        engine.runRenderLoop(function () {
+            if (sceneToRender) {
+                sceneToRender.render();
+            }
+        });
+
+        // Resize
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+    </script>
+</body>
+</html>

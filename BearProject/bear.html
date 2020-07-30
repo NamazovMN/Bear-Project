@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+#version 300 es
+
+in vec4 aPosition;
+in vec2 texCoord;
+uniform mat4 modelViewMatrix;
+uniform mat4 projectionMatrix;
+
+out vec2 oTexCoord;
+
+uniform vec3 thetaAngles;
+
+void main()
+{
+
+    vec3 radiansTheta = radians(thetaAngles);
+    
+
+    mat4 rotate_x = mat4(1.0, 0.0, 0.0, 0.0,
+                    0.0, cos(radiansTheta).x, sin(radiansTheta).x, 0.0,
+                    0.0, -sin(radiansTheta).x, cos(radiansTheta).x, 0.0,
+                    0.0, 0.0, 0.0, 1.0 );
+
+    mat4 rotate_y = mat4(cos(radiansTheta).y, 0.0, -sin(radiansTheta).y, 0.0,
+                    0.0, 1.0, 0.0, 0.0,
+                    sin(radiansTheta).y, 0.0, cos(radiansTheta).y, 0.0,
+                    0.0, 0.0, 0.0, 1.0 );
+
+    mat4 rotate_z = mat4(cos(radiansTheta).z, sin(radiansTheta).z, 0.0, 0.0,
+                    -sin(radiansTheta).z, cos(radiansTheta).z, 0.0, 0.0,
+                    0.0, 0.0, 1.0, 0.0,
+                    0.0, 0.0, 0.0, 1.0 );
+
+
+    gl_Position = rotate_z * rotate_y * rotate_x * projectionMatrix * modelViewMatrix * aPosition;
+    oTexCoord = texCoord;
+}
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+#version 300 es
+
+precision mediump float;
+
+in vec2 oTexCoord;
+uniform sampler2D texBearBody;
+uniform sampler2D texBearHead;
+uniform sampler2D texTreeBody;
+uniform sampler2D texTreeLeaves;
+uniform sampler2D texRoad;
+
+out vec4 fColor;
+uniform  bool boolHead, boolTorso, boolTreeLeaves, boolTreeBody, boolRoad;
+void main()
+{
+    if(boolTorso) fColor = texture(texBearBody, oTexCoord);
+    else if(boolHead) fColor = texture(texBearHead, oTexCoord);
+    else if(boolRoad) fColor = texture(texRoad,oTexCoord);//vec4(1,0.75,0,1);
+    else if(boolTreeLeaves) fColor = texture(texTreeLeaves, oTexCoord);//vec4(0,1,0,1);
+    else if(boolTreeBody) fColor = texture(texTreeBody, oTexCoord);//vec4(0.59,0.29,0,1);
+    else{
+        fColor = vec4(1,0,0,1);
+    }
+}
+</script>
+
+<script type="text/javascript" src="Common/InitShaders.js"></script>
+<script type="text/javascript" src="Common/MVnew.js"></script>
+<script type="text/javascript" src="bear.js"></script>
+
+
+
+
+
+<body>
+<canvas id="gl-canvas" style = "z-index: 0" width="1500" height="1500">
+Oops ... your browser doesn't support the HTML5 canvas element
+
+</canvas>
+
+<div class='buttonContainer'>
+    <input class='but' id='Start' type='button' value='Start' style="background-color: green; border-color: black; color: white ;font-size: 0.8cm; width: 5cm;height: 1cm">
+    <input class='but' id='Pause' type='button' value='Pause' style = "background-color: green; border-color: black; color: white ;font-size: 0.8cm; width: 5cm;height: 1cm">
+    <input class='but' id='Rotate' type='button' value='Rotate' style = "background-color: green; border-color: black; color: white ;font-size: 0.8cm; width: 5cm;height: 1cm">
+    <input class='but' id='Pause Rotation' type='button' value='Pause Rotation' style = "background-color: green; border-color: black; color: white ;font-size: 0.8cm; width: 6cm;height: 1cm">
+    <input class='but' id='ByX' type='button' value='By X' style = "background-color: green; border-color: black; color: white ;font-size: 0.8cm; width: 5cm;height: 1cm">
+    <input class='but' id='ByY' type='button' value='By Y' style = "background-color: green; border-color: black; color: white ;font-size: 0.8cm; width: 5cm;height: 1cm">
+    <input class='but' id='ByZ' type='button' value='By Z' style = "background-color: green; border-color: black; color: white ;font-size: 0.8cm; width: 5cm;height: 1cm">
+
+
+
+</div>
+
+
+<img id = "bearBody" src = "Textures/bodyTex.jpg" hidden ></img>
+<img id = "bearHead" src = "Textures/head.jpg" hidden ></img>
+<img id = "treeLeaves" src = "Textures/leaves.png" hidden></img>
+<img id = "treeBody" src = "Textures/treeBody.jpg" hidden></img>
+<img id = "road" src = "Textures/roadForest.jpg" hidden></img>
+</body>
+
+
+</html>
